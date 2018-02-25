@@ -88,7 +88,7 @@ class SearchResultList extends React.Component {
 
         {this.props.error ?
           <section className="reddit-error">
-            <h2>No bueno boobay.</h2>
+            <h2>something erroneous is going on...</h2>
           </section>
           :
           undefined
@@ -113,7 +113,6 @@ class App extends React.Component {
   updateState(state) {
     this.searchApi(state)
       .then(res => {
-        console.log(res.body.data.children);
         return this.setState(
           {topics: res.body.data.children.map(i => 
             [
