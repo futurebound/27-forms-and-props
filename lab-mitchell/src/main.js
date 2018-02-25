@@ -4,14 +4,14 @@ import React from 'react';
 import ReactDom from 'react-dom';
 import superagent from 'superagent';
 
-const API_URL = 'http://www.reddit.com/r';
+const API_URL = 'https://www.reddit.com/r';
 
 class SearchForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       toSearch: '',
-      searchLimit: null,
+      searchLimit: 1,
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -19,13 +19,15 @@ class SearchForm extends React.Component {
   }
 
   handleChange(e) {
-    this.setState({val: e.target.value});
+    if(e.target.name === 'to-search') this.setState({toSearch: e.target.value});
+    if(e.target.name === 'search-limit') this.setState({searchLimit: e.target.value});
   }
 
   handleSubmit(e) {
     e.preventDefault();
-    this.props.update_state(this.state.val);
+    this.props.update_state(this.state);
   }
+
 
   render() {
     return (
@@ -34,16 +36,19 @@ class SearchForm extends React.Component {
         onSubmit={this.handleSubmit}>
         <input
           type="text"
-          name="toSearch"
+          name="to-search"
           value={this.state.toSearch}
           onChange={this.handleChange}
           placeholder="what you wanna find boo?"/>
+
         <input
           type="number"
-          name="searchLimit"
-          value={this.state.val}
+          name="search-limit"
+          value={this.state.searchLimit}
+          min="1"
+          max="20"
           onChange={this.handleChange}
-          placeholder="how many?"/>
+          placeholder="1-20"/>
 
         <button type="submit">Seach</button>
       </form>
@@ -62,10 +67,16 @@ class SearchResultList extends React.Component {
         {this.props.topics ?
           <section className="reddit-data">
             {console.log(this.props.topics)}
-            <h2>{this.props.topics.subject}</h2>
-            <img
-              src={this.props.topics.image}
-              alt={this.props.topics.namething}/>
+            <ul>
+              {this.props.topics.map((data, i) => {
+                return <li key={i}>
+                  <a href={data[0]}>
+                    <h2>{data[1]}</h2>
+                    <p>{data[2]}</p>
+                  </a>
+                </li>;
+              })}
+            </ul>
           </section>
           :
           undefined
@@ -83,13 +94,11 @@ class SearchResultList extends React.Component {
   }
 }
 
-class App extends React.Componenet {
+class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       topics: [],
-      searchFormBoard: asdf,
-      searchFormLimit: loodly,
       searchError: null,
     };
 
@@ -97,20 +106,20 @@ class App extends React.Componenet {
     this.searchApi = this.searchApi.bind(this);
   }
 
-  updateState(searchFormBoard, searchFormLimit) {
-    this.searchApi(searchFormBoard, searchFormLimit)
-      .then(res => this.setState({topics: res.body, searchError: null}))
+  updateState(state) {
+    this.searchApi(state)
+      .then(res => this.setState({topics: res.body.data.children.map(i => [i.data.url, i.data.title, i.data.ups]), searchError: null}))
       .catch(err => this.setState({topics: [], searchError: err}));
   }
 
-  searchApi(searchFormBoard, searchFormLimit) {
-    return superagent.get(`${API_URL}/${searchFormBoard}.json?limit=${searchFormLimit}`);
+  searchApi(state) {
+    return superagent.get(`${API_URL}/${state.toSearch}.json?limit=${state.searchLimit}`);
   }
   
   render() {
     return (
       <div className="application">
-        <SearchForm update_state={this.updateState}/>
+        <SearchForm update_state={this.updateState} search_error={this.state.searchError}/>
         <SearchResultList topics={this.state.topics} error={this.state.searchError}/>
       </div>
     );

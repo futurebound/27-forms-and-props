@@ -4,7 +4,7 @@ const HtmlPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
-  devtool: 'source-maps',
+  devtool: 'source-map',
   entry: `${__dirname}/src/main.js`,
   output: {
     path: `${__dirname}/build`,
@@ -24,7 +24,7 @@ module.exports = {
       },
       {
         test: /\.scss$/,
-        loader: ExtractTextPlugin(['css-loader', 'sass-loader'])
+        loader: ExtractTextPlugin.extract(['css-loader', 'sass-loader'])
       },
     ]
   },
