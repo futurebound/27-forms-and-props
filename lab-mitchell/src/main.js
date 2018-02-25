@@ -1,4 +1,4 @@
-// import './styles/main.scss';
+import './styles/main.scss';
 
 import React from 'react';
 import ReactDom from 'react-dom';
@@ -32,14 +32,14 @@ class SearchForm extends React.Component {
   render() {
     return (
       <form
-        className="search-form"
+        className={this.props.search_error ? 'form-error search-form' : 'search-form'}
         onSubmit={this.handleSubmit}>
         <input
           type="text"
           name="to-search"
           value={this.state.toSearch}
           onChange={this.handleChange}
-          placeholder="what you wanna find boo?"/>
+          placeholder="what you wanna search?"/>
 
         <input
           type="number"
@@ -70,10 +70,11 @@ class SearchResultList extends React.Component {
             <ul>
               {this.props.topics.map((data, i) => {
                 return <li key={i}>
-                  <a href={data[0]}>
+                  <a href={`https://www.reddit.com${data[0]}`}>
                     <h2>{data[1]}</h2>
-                    <p>{data[2]}</p>
                   </a>
+                  <img src={data[3]}></img>
+                  <p>{data[2]} upvotes</p>
                 </li>;
               })}
             </ul>
@@ -108,7 +109,18 @@ class App extends React.Component {
 
   updateState(state) {
     this.searchApi(state)
-      .then(res => this.setState({topics: res.body.data.children.map(i => [i.data.url, i.data.title, i.data.ups]), searchError: null}))
+      .then(res => {
+        console.log(res.body.data.children);
+        return this.setState(
+          {topics: res.body.data.children.map(i => 
+            [
+              i.data.permalink,
+              i.data.title,
+              i.data.ups,
+              i.data.url
+            ]
+          ), searchError: null});
+      })
       .catch(err => this.setState({topics: [], searchError: err}));
   }
 
@@ -119,8 +131,13 @@ class App extends React.Component {
   render() {
     return (
       <div className="application">
-        <SearchForm update_state={this.updateState} search_error={this.state.searchError}/>
-        <SearchResultList topics={this.state.topics} error={this.state.searchError}/>
+        <section id="SearchForm">
+          <SearchForm update_state={this.updateState} search_error={this.state.searchError}/>
+        </section>
+
+        <section id="SearchResult">
+          <SearchResultList topics={this.state.topics} error={this.state.searchError}/>
+        </section>
       </div>
     );
   } 
