@@ -9,6 +9,16 @@
   height: 400px;
 }
 
+.reddit-data ul li {
+  list-style-type: none;
+  text-decoration: none;
+}
+
+.reddit-data ul li a {
+  text-decoration: none;
+}
+
+
 form input {
   display: block;
   margin-right: 2%;

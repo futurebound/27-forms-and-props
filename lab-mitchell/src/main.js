@@ -73,8 +73,11 @@ class SearchResultList extends React.Component {
                   <a href={`https://www.reddit.com${data[0]}`}>
                     <h2>{data[1]}</h2>
                   </a>
-                  <img src={data[3]}></img>
-                  <p>{data[2]} upvotes</p>
+                  {data[3].startsWith('https://www.reddit') ?
+                    undefined
+                    :
+                    <img src={data[3]}></img>}
+                  <p>{data[2]} updoots</p>
                 </li>;
               })}
             </ul>
